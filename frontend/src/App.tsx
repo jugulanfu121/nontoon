@@ -12,7 +12,7 @@ function App() {
       for (let i = 0; i < chunks.length; i++) {
         const formData = new FormData()
 
-        const f = blobToFile(chunks[i], "undangan.docx")
+        const f = blobToFile(chunks[i], file.name)
 
         formData.append("file", f)
         formData.append("uploadId", "def")

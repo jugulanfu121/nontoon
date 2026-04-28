@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/arifazola/nontoon/controllers"
 	"github.com/arifazola/nontoon/repositories"
 	"github.com/arifazola/nontoon/services"
@@ -8,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 func main(){
+	fmt.Println("Start");
 	router := gin.Default()
 	router.Use(cors.Default())
 

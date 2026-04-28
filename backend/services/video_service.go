@@ -45,13 +45,13 @@ func (videoService *VideoService) SaveChunk(uploadID string, index int, file io.
 }
 
 func (videoService *VideoService) MergeChunks(uploadId, filename string, totalChunks int) (string, error){
-	err := os.MkdirAll(videoService.FinalPath, os.ModePerm)
+	err := os.MkdirAll(constants.BASE_PATH, os.ModePerm)
 
 	if err != nil {
 		log.Println("error create dir: ", err)
 	}
 
-	finalPath := filepath.Join(videoService.FinalPath, filename)
+	finalPath := filepath.Join(constants.BASE_PATH, filename)
 
 
 	finalFile, err := os.Create(finalPath)
