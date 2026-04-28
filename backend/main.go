@@ -1,8 +1,11 @@
 package main
 
 import (
+	"log"
+
 	"github.com/arifazola/nontoon/controllers"
 	"github.com/arifazola/nontoon/database"
+	"github.com/arifazola/nontoon/internal/db"
 	"github.com/arifazola/nontoon/repositories"
 	"github.com/arifazola/nontoon/services"
 	"github.com/gin-contrib/cors"
@@ -14,14 +17,27 @@ func main(){
 
 	databaseUrl := "postgres://postgres:test1234@localhost:5432/nontoon?sslmode=disable"
 
-	database.NewDB(databaseUrl)
+	dbConn, err := database.NewDB(databaseUrl)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer dbConn.Close()
+
+	queries := db.New(dbConn)
 
 	localStorage := repositories.LocalStorage{
 		BasePath: "./files",
 	}
 
+	videoJobsRepo := repositories.VideoJobsRepository{
+		Queries: queries,
+	}
+
 	videoService := services.VideoService {
 		FileStorage: &localStorage,
+		VideoJobs: &videoJobsRepo,
 	}
 
 	videoController := controllers.VideoController{

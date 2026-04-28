@@ -59,7 +59,7 @@ func (c *VideoController) UploadChunk(ctx *gin.Context) {
 
     index, _ := strconv.Atoi(chunkIndexStr)
 
-    err = c.VideoService.SaveChunk(uploadID, index, f)
+    err = c.VideoService.SaveChunk(uploadID, index, f, ctx)
     if err != nil {
         ctx.JSON(500, gin.H{"error": err.Error()})
         return

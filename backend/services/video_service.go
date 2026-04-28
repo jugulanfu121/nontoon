@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"log"
@@ -10,11 +11,13 @@ import (
 	"github.com/arifazola/nontoon/constants"
 	"github.com/arifazola/nontoon/interfaces"
 	"github.com/arifazola/nontoon/models"
+	"github.com/google/uuid"
 )
 
 type VideoService struct{
 	FileStorage interfaces.FileStorage
 	FinalPath string
+	VideoJobs interfaces.VideoJobs
 }
 
 func GetAllVideos() []models.Video {
@@ -38,8 +41,20 @@ func (videoService *VideoService) SaveVideo(file io.ReadSeeker, filename string,
 	return saveVideo, nil
 }
 
-func (videoService *VideoService) SaveChunk(uploadID string, index int, file io.ReadSeeker) error {
-	videoService.FileStorage.SaveChunk(uploadID, index, file)
+func (videoService *VideoService) SaveChunk(uploadID string, index int, file io.ReadSeeker, ctx context.Context) error {
+	err := videoService.FileStorage.SaveChunk(uploadID, index, file)
+
+	if err != nil {
+		return err
+	}
+
+	videoJobsId := uuid.New().String()
+
+	addVideoJobsErr := videoService.VideoJobs.AddVideoJobs(ctx, videoJobsId, uploadID, index)
+
+	if addVideoJobsErr != nil {
+		return addVideoJobsErr
+	}
 
 	return nil
 }

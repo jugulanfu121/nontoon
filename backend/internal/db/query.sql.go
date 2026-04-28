@@ -7,7 +7,25 @@ package db
 
 import (
 	"context"
+	"database/sql"
 )
+
+const addVideoJob = `-- name: AddVideoJob :exec
+INSERT INTO public."VideoJobs"(
+	id, "uploadId", index)
+	VALUES ($1, $2, $3)
+`
+
+type AddVideoJobParams struct {
+	ID       string
+	UploadId string
+	Index    sql.NullInt32
+}
+
+func (q *Queries) AddVideoJob(ctx context.Context, arg AddVideoJobParams) error {
+	_, err := q.db.ExecContext(ctx, addVideoJob, arg.ID, arg.UploadId, arg.Index)
+	return err
+}
 
 const getAllVideoJobs = `-- name: GetAllVideoJobs :many
 
