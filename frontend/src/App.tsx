@@ -29,7 +29,21 @@ function App() {
         setTotalChunksUploaded(i)
         console.log("result api", res)
       }
+
+      await completeUpload("def", file.name, chunks.length)
     }
+  }
+
+  const completeUpload = async (uploadId: string, fileName: string, totalChunks: number) => {
+    const formData = new FormData()
+    formData.append("uploadId", uploadId)
+    formData.append("filename", fileName)
+    formData.append("totalChunks", totalChunks.toString())
+
+    await fetch("http://localhost:8080/videos/merge", {
+      method: "POST",
+      body: formData
+    })
   }
 
   const blobToFile = (theBlob: Blob, fileName: string): File => {

@@ -12,7 +12,7 @@ const Video = () => {
         >
             <ReactPlayer
                 slot="media"
-                src="http://localhost:8080/assets/master.m3u8"
+                src="http://localhost:8080/assets/def/master.m3u8"
                 controls={false}
                 style={{
                     width: "100%",

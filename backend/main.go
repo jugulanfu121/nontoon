@@ -1,10 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
-	"os/exec"
 
 	"github.com/arifazola/nontoon/controllers"
 	"github.com/arifazola/nontoon/database"
@@ -15,13 +13,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 func main(){
-	go func() {
-		//ffmpeg -i sample.mp4 -codec: copy -start_number 0 -hls_time 1 -hls_list_size 0 -f hls output.m3u8
-		fmt.Println("Executing command")
-		our, _ := exec.Command("ffmpeg", "-i", "sample.mp4", "-codec:", "copy", "-start_number", "0", "-hls_time", "10", "-hls_list_size", "0", "-f", "hls", "output.m3u8").CombinedOutput()
-
-		fmt.Println("Command finish: ", string(our))
-	}()
 
 	router := gin.Default()
 	router.Use(cors.Default())

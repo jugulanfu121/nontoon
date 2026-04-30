@@ -7,7 +7,9 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"time"
 
+	"github.com/arifazola/nontoon/constants"
 	"github.com/arifazola/nontoon/interfaces"
 	"github.com/arifazola/nontoon/internal/db"
 	"github.com/arifazola/nontoon/models"
@@ -76,7 +78,6 @@ func (videoService *VideoService) MergeChunks(uploadId, filename string, totalCh
 		return "", err
 	}
 
-	defer finalFile.Close()
 
 	for i := 0; i < totalChunks; i ++ {
 		chunkPath := filepath.Join(basepath, uploadId, fmt.Sprintf("%d.part", i))
@@ -97,6 +98,24 @@ func (videoService *VideoService) MergeChunks(uploadId, filename string, totalCh
 			return "", copyChunkErr
 		}
 	}
+
+	finalFile.Close()
+
+	orgFile := basepath + "/" + filename
+	destinationFile := constants.ASSETS_PATH + "/" + filename
+	movFileRrr := os.Rename(orgFile, destinationFile)
+
+	if movFileRrr != nil {
+		log.Println("move file error", movFileRrr)
+		return "", movFileRrr
+	}
+
+	go func ()  {
+		time.Sleep(10 * time.Second)
+		videoSrc := constants.ASSETS_PATH + "/" + filename
+		output := constants.ASSETS_PATH + "/def" + filename + ".m3u8"
+		CreateHlsFile(videoSrc, output, filename)
+	}()
 
 	return finalPath, nil
 }
