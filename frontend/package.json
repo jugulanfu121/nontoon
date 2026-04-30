@@ -10,8 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "media-chrome": "^4.19.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
+    "react-player": "^3.4.0",
     "react-router": "^7.14.2"
   },
   "devDependencies": {
