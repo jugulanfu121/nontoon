@@ -76,7 +76,7 @@ func (c *VideoController) CompleteUpload(ctx *gin.Context) {
 
     totalChunks, _ := strconv.Atoi(totalChunksStr)
 
-    path, err := c.VideoService.CompleteUpload(uploadID, filename, totalChunks, constants.BASE_PATH)
+    path, err := c.VideoService.CompleteUpload(uploadID, filename, totalChunks, constants.BASE_PATH, ctx)
     if err != nil {
         ctx.JSON(500, gin.H{"error": err.Error()})
         return

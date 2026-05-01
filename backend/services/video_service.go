@@ -19,6 +19,7 @@ type VideoService struct{
 	FinalPath string
 	VideoJobs interfaces.VideoJobs
 	VideoProcessor interfaces.VideoProcessor
+	HlsJob interfaces.HlsJobs
 }
 
 func GetAllVideos() []models.Video {
@@ -60,7 +61,7 @@ func (videoService *VideoService) SaveChunk(uploadID string, index int, file io.
 	return nil
 }
 
-func (videoService *VideoService) CompleteUpload(uploadId, filename string, totalChunks int, basepath string) (string, error){
+func (videoService *VideoService) CompleteUpload(uploadId, filename string, totalChunks int, basepath string, context context.Context) (string, error){
 	
 	finalPath, err := videoService.MergeChunks(uploadId, filename, totalChunks, basepath)
 
@@ -75,10 +76,22 @@ func (videoService *VideoService) CompleteUpload(uploadId, filename string, tota
 	}
 
 	go func ()  {
-		errGenerateHls := videoService.GenerateHls(filename)
+		errAddHlsJob := videoService.HlsJob.AddJob(context, uploadId)
+
+		if errAddHlsJob != nil {
+			log.Println("error adding hls job: ", errAddHlsJob)
+		}
+
+		errGenerateHls := videoService.GenerateHls(filename, uploadId)
 
 		if errGenerateHls != nil {
 			log.Println("error generating hls: ", errGenerateHls)
+		}
+
+		errUpdateHlsJob := videoService.HlsJob.UpdateJob(context, uploadId, true)
+
+		if errUpdateHlsJob != nil {
+			log.Println("error adding hls job: ", errUpdateHlsJob)
 		}
 
 		videoService.DeleteTempFile(uploadId, filename)
@@ -97,10 +110,10 @@ func (service *VideoService) MergeChunks(uploadId, filename string, totalChunks 
 	return finalPath, nil
 }
 
-func (service *VideoService) GenerateHls(filename string) error {
+func (service *VideoService) GenerateHls(filename, uploadId string) error {
 	videoSrc := constants.ASSETS_PATH + "/" + filename
-	output := constants.ASSETS_PATH + "/def" + filename + ".m3u8"
-	errHls := service.VideoProcessor.CreateHlsFile(videoSrc, output, filename)
+	output := filepath.Join(constants.ASSETS_PATH, uploadId, filename + ".m3u8")
+	errHls := service.VideoProcessor.CreateHlsFile(videoSrc, output, filename, uploadId)
 
 	if errHls != nil {
 		log.Println("error hls result:", errHls)

@@ -1,5 +1,5 @@
 package interfaces
 
 type VideoProcessor interface {
-	CreateHlsFile(videoSrc, outputDir, filename string) error
+	CreateHlsFile(videoSrc, outputDir, filename, uploadId string) error
 }

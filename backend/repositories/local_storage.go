@@ -110,5 +110,5 @@ func (localStorage *LocalStorage) MergeChunks(uploadId, filename string, totalCh
 }
 
 func (localStorage *LocalStorage) DeleteFile(path string) error {
-	return os.Remove(path)
+	return os.RemoveAll(path)
 }

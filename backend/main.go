@@ -39,10 +39,15 @@ func main(){
 
 	videoProcessor := repositories.VideoProcessorRepository{}
 
+	hlsJobs := repositories.HlsJobsRepository{
+		Queries: queries,
+	}
+
 	videoService := services.VideoService {
 		FileStorage: &localStorage,
 		VideoJobs: &videoJobsRepo,
 		VideoProcessor: &videoProcessor,
+		HlsJob: &hlsJobs,
 	}
 
 	videoController := controllers.VideoController{

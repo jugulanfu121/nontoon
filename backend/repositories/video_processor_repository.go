@@ -12,13 +12,16 @@ import (
 
 type VideoProcessorRepository struct{}
 
-func (v *VideoProcessorRepository) CreateHlsFile(videoSrc, outputDir, filename string) error {
-	path := filepath.Join(constants.ASSETS_PATH, "def")
+func (v *VideoProcessorRepository) CreateHlsFile(videoSrc, outputDir, filename, uploadId string) error {
+	path := filepath.Join(constants.ASSETS_PATH, uploadId)
 	err := os.MkdirAll(path, os.ModePerm)
 
 	if err != nil {
 		log.Println("Error creating hls folder", err)
 	}
+
+	segmentFile := filepath.Join("assets", uploadId, "v%v", "file_%03d.ts")
+	hlsFile := filepath.Join("assets", uploadId, "v%v", "prog_index.m3u8")
 
 	out, err := exec.Command(
 		"ffmpeg",
@@ -35,8 +38,8 @@ func (v *VideoProcessorRepository) CreateHlsFile(videoSrc, outputDir, filename s
 		"-master_pl_name", "master.m3u8",
 		"-hls_time", "10",
 		"-hls_list_size", "0",
-		"-hls_segment_filename", "assets/def/v%v/file_%03d.ts",
-		"assets/def/v%v/prog_index.m3u8",
+		"-hls_segment_filename", segmentFile,
+		hlsFile,
 	).CombinedOutput()
 
 	if err != nil {

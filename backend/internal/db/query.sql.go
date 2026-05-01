@@ -10,6 +10,23 @@ import (
 	"database/sql"
 )
 
+const addHlsJob = `-- name: AddHlsJob :exec
+INSERT INTO public."HlsJobs"(
+	id, "uploadId", status)
+	VALUES ($1, $2, $3)
+`
+
+type AddHlsJobParams struct {
+	ID       string
+	UploadId string
+	Status   bool
+}
+
+func (q *Queries) AddHlsJob(ctx context.Context, arg AddHlsJobParams) error {
+	_, err := q.db.ExecContext(ctx, addHlsJob, arg.ID, arg.UploadId, arg.Status)
+	return err
+}
+
 const addVideoJob = `-- name: AddVideoJob :exec
 INSERT INTO public."VideoJobs"(
 	id, "uploadId", index)
@@ -28,7 +45,6 @@ func (q *Queries) AddVideoJob(ctx context.Context, arg AddVideoJobParams) error 
 }
 
 const getAllVideoJobs = `-- name: GetAllVideoJobs :many
-
 
 SELECT id, "uploadId", index
 	FROM public."VideoJobs"
@@ -71,4 +87,20 @@ func (q *Queries) GetLatestUploadedChunk(ctx context.Context, uploadid string) (
 	var i VideoJob
 	err := row.Scan(&i.ID, &i.UploadId, &i.Index)
 	return i, err
+}
+
+const updateHlsJobStatus = `-- name: UpdateHlsJobStatus :exec
+UPDATE public."HlsJobs"
+	SET status=$1
+	WHERE "uploadId"=$2
+`
+
+type UpdateHlsJobStatusParams struct {
+	Status   bool
+	UploadId string
+}
+
+func (q *Queries) UpdateHlsJobStatus(ctx context.Context, arg UpdateHlsJobStatusParams) error {
+	_, err := q.db.ExecContext(ctx, updateHlsJobStatus, arg.Status, arg.UploadId)
+	return err
 }

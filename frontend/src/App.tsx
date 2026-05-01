@@ -12,14 +12,17 @@ function App() {
 
       console.log("chunks length", chunks.length)
 
+      const randomString = Math.random().toString(36).substring(2, 12);
+
       for (let i = 0; i < chunks.length; i++) {
         const formData = new FormData()
 
         const f = blobToFile(chunks[i], file.name)
 
         formData.append("file", f)
-        formData.append("uploadId", "def")
+        formData.append("uploadId", randomString)
         formData.append("chunkIndex", i.toString())
+
         const response = await fetch("http://localhost:8080/videos/chunks", {
           method: "POST",
           body: formData
@@ -30,7 +33,7 @@ function App() {
         console.log("result api", res)
       }
 
-      await completeUpload("def", file.name, chunks.length)
+      await completeUpload(randomString, file.name, chunks.length)
     }
   }
 

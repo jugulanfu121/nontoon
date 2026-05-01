@@ -8,6 +8,12 @@ import (
 	"database/sql"
 )
 
+type HlsJob struct {
+	ID       string
+	UploadId string
+	Status   bool
+}
+
 type VideoJob struct {
 	ID       string
 	UploadId string
