@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -62,4 +63,8 @@ func (m *MockStorage) SaveChunk(uploadID string, index int, file io.ReadSeeker) 
 	}
 
 	return nil
+}
+
+func (m *MockStorage) MergeChunks(uploadId, filename string, totalChunks int, basepath string) (string, error){
+	return "", errors.New("")
 }

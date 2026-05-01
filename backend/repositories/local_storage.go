@@ -6,6 +6,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/arifazola/nontoon/constants"
 )
 
 type LocalStorage struct {
@@ -65,4 +67,55 @@ func (localStorage *LocalStorage) SaveChunk(uploadID string, index int, file io.
 	}
 
 	return nil
+}
+
+func (localStorage *LocalStorage) MergeChunks(uploadId, filename string, totalChunks int, basepath string) (string, error){
+	err := os.MkdirAll(basepath, os.ModePerm)
+
+	if err != nil {
+		log.Println("error create dir: ", err)
+	}
+
+	finalPath := filepath.Join(basepath, filename)
+
+	finalFile, err := os.Create(finalPath)
+
+	if err != nil {
+		log.Println("error creating final file: ", err)
+		return "", err
+	}
+
+
+	for i := 0; i < totalChunks; i ++ {
+		chunkPath := filepath.Join(basepath, uploadId, fmt.Sprintf("%d.part", i))
+
+		chunkFile, err := os.Open(chunkPath)
+
+		if err != nil {
+			log.Println("error opening chunk file: ", err)
+			return "", err
+		}
+
+		_, copyChunkErr := io.Copy(finalFile, chunkFile)
+
+		chunkFile.Close()
+
+		if copyChunkErr != nil {
+			log.Println("Error copying chunks: ", copyChunkErr)
+			return "", copyChunkErr
+		}
+	}
+
+	finalFile.Close()
+
+	orgFile := basepath + "/" + filename
+	destinationFile := constants.ASSETS_PATH + "/" + filename
+	movFileRrr := os.Rename(orgFile, destinationFile)
+
+	if movFileRrr != nil {
+		log.Println("move file error", movFileRrr)
+		return "", movFileRrr
+	}
+
+	return finalPath, nil
 }

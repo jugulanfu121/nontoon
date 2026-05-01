@@ -1,4 +1,4 @@
-package services
+package repositories
 
 import (
 	"fmt"
@@ -10,16 +10,16 @@ import (
 	"github.com/arifazola/nontoon/constants"
 )
 
+type VideoProcessorRepository struct{}
 
-func CreateHlsFile(videoSrc, outputDir, filename string) {
-	// out, _ := exec.Command("ffmpeg", "-i", videoSrc, "-codec:", "copy", "-start_number", "0", "-hls_time", "10", "-hls_list_size", "0", "-f", "hls", outputDir).CombinedOutput()
+func (v *VideoJobsRepository) CreateHlsFile(videoSrc, outputDir, filename string) error {
 	path := filepath.Join(constants.ASSETS_PATH, "def")
 	err := os.MkdirAll(path, os.ModePerm)
 
 	if err != nil {
 		log.Println("Error creating hls folder", err)
 	}
-	
+
 	out, err := exec.Command(
 		"ffmpeg",
 		"-i", videoSrc,
@@ -41,8 +41,10 @@ func CreateHlsFile(videoSrc, outputDir, filename string) {
 
 	if err != nil {
 		fmt.Println("Error Hls", err)
-		return
+		return err
 	}
-	
+
 	fmt.Println(string(out))
+
+	return nil
 }
