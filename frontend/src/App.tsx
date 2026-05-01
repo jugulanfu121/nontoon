@@ -85,7 +85,7 @@ function App() {
 
       <br />
 
-      <p>Total chunks uploaded: {totalChunksUploaded} out of {totalChunks}</p>
+      <p>Total chunks uploaded: {totalChunksUploaded} out of {totalChunks - 1}</p>
 
       <p>Your video ID {videoId}</p>
 
