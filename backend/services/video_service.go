@@ -3,7 +3,9 @@ package services
 import (
 	"context"
 	"io"
-	"time"
+	"log"
+	"os"
+	"path/filepath"
 
 	"github.com/arifazola/nontoon/constants"
 	"github.com/arifazola/nontoon/interfaces"
@@ -66,11 +68,37 @@ func (videoService *VideoService) MergeChunks(uploadId, filename string, totalCh
 		return  "", err
 	}
 
+	//Move the merged file to assets folder before being processed by ffmpeg
+	orgFile := basepath + "/" + filename
+	destinationFile := constants.ASSETS_PATH + "/" + filename
+	movFileRrr := os.Rename(orgFile, destinationFile)
+
+	if movFileRrr != nil {
+		log.Println("move file error", movFileRrr)
+		return "", movFileRrr
+	}
+
 	go func ()  {
-		time.Sleep(10 * time.Second)
 		videoSrc := constants.ASSETS_PATH + "/" + filename
 		output := constants.ASSETS_PATH + "/def" + filename + ".m3u8"
-		videoService.VideoProcessor.CreateHlsFile(videoSrc, output, filename)
+		errHls := videoService.VideoProcessor.CreateHlsFile(videoSrc, output, filename)
+
+		if errHls != nil {
+			log.Println("error hls result:", errHls)
+		}
+		chunkPath := filepath.Join(constants.BASE_PATH, uploadId)
+		deleteChunkFileError := videoService.FileStorage.DeleteFile(chunkPath)
+
+		if deleteChunkFileError != nil {
+			log.Println("error delete chunk path", deleteChunkFileError)
+		}
+
+		tempAssetFile := filepath.Join(constants.ASSETS_PATH, filename)
+		deleteTempAssetErr := videoService.FileStorage.DeleteFile(tempAssetFile)
+
+		if deleteTempAssetErr != nil {
+			log.Println("error delete chunk path", deleteChunkFileError)
+		}
 	}()
 
 	return finalPath, nil

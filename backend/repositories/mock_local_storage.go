@@ -68,3 +68,7 @@ func (m *MockStorage) SaveChunk(uploadID string, index int, file io.ReadSeeker) 
 func (m *MockStorage) MergeChunks(uploadId, filename string, totalChunks int, basepath string) (string, error){
 	return "", errors.New("")
 }
+
+func (m *MockStorage) DeleteFile(path string) error{
+	return errors.New("")
+}

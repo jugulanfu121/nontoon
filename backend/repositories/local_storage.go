@@ -6,8 +6,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-
-	"github.com/arifazola/nontoon/constants"
 )
 
 type LocalStorage struct {
@@ -108,14 +106,9 @@ func (localStorage *LocalStorage) MergeChunks(uploadId, filename string, totalCh
 
 	finalFile.Close()
 
-	orgFile := basepath + "/" + filename
-	destinationFile := constants.ASSETS_PATH + "/" + filename
-	movFileRrr := os.Rename(orgFile, destinationFile)
-
-	if movFileRrr != nil {
-		log.Println("move file error", movFileRrr)
-		return "", movFileRrr
-	}
-
 	return finalPath, nil
+}
+
+func (localStorage *LocalStorage) DeleteFile(path string) error {
+	return os.Remove(path)
 }

@@ -12,7 +12,7 @@ import (
 
 type VideoProcessorRepository struct{}
 
-func (v *VideoJobsRepository) CreateHlsFile(videoSrc, outputDir, filename string) error {
+func (v *VideoProcessorRepository) CreateHlsFile(videoSrc, outputDir, filename string) error {
 	path := filepath.Join(constants.ASSETS_PATH, "def")
 	err := os.MkdirAll(path, os.ModePerm)
 
