@@ -44,7 +44,13 @@ func (videoService *VideoService) SaveVideo(file io.ReadSeeker, filename string,
 	return saveVideo, nil
 }
 
-func (videoService *VideoService) SaveChunk(uploadID string, index int, file io.ReadSeeker, ctx context.Context) error {
+func (videoService *VideoService) IsFileDuplicate(filename string, ctx context.Context) (db.GetLatestUploadedChunkByFilenameRow, error){
+	latestChunk, err := videoService.VideoJobs.GetVideoJobByFilename(ctx, filename)
+
+	return latestChunk, err
+}
+
+func (videoService *VideoService) SaveChunk(uploadID, filename string, index int, file io.ReadSeeker, ctx context.Context) error {
 	err := videoService.FileStorage.SaveChunk(uploadID, index, file)
 
 	if err != nil {
@@ -53,7 +59,7 @@ func (videoService *VideoService) SaveChunk(uploadID string, index int, file io.
 
 	videoJobsId := uuid.New().String()
 
-	addVideoJobsErr := videoService.VideoJobs.AddVideoJobs(ctx, videoJobsId, uploadID, index)
+	addVideoJobsErr := videoService.VideoJobs.AddVideoJobs(ctx, videoJobsId, uploadID, filename, index)
 
 	if addVideoJobsErr != nil {
 		return addVideoJobsErr
@@ -164,11 +170,11 @@ func (service *VideoService) GetVideoStatus(context context.Context, id string) 
 	return isVideoReady
 }
 
-func (service *VideoService) GetLatestUploadedChunk(ctx context.Context, uploadId string) (db.VideoJob, error){
+func (service *VideoService) GetLatestUploadedChunk(ctx context.Context, uploadId string) (db.GetLatestUploadedChunkRow, error){
 	latestChunk, err := service.VideoJobs.GetLatestUploadedChunk(ctx, uploadId)
 
 	if err != nil {
-		var videoJob db.VideoJob
+		var videoJob db.GetLatestUploadedChunkRow
 		return videoJob, err
 	}
 

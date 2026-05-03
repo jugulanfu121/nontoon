@@ -7,7 +7,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
 )
 
 const addHlsJob = `-- name: AddHlsJob :exec
@@ -29,18 +28,24 @@ func (q *Queries) AddHlsJob(ctx context.Context, arg AddHlsJobParams) error {
 
 const addVideoJob = `-- name: AddVideoJob :exec
 INSERT INTO public."VideoJobs"(
-	id, "uploadId", index)
-	VALUES ($1, $2, $3)
+	id, "uploadId", index, "filename")
+	VALUES ($1, $2, $3, $4)
 `
 
 type AddVideoJobParams struct {
 	ID       string
 	UploadId string
-	Index    sql.NullInt32
+	Index    int32
+	Filename string
 }
 
 func (q *Queries) AddVideoJob(ctx context.Context, arg AddVideoJobParams) error {
-	_, err := q.db.ExecContext(ctx, addVideoJob, arg.ID, arg.UploadId, arg.Index)
+	_, err := q.db.ExecContext(ctx, addVideoJob,
+		arg.ID,
+		arg.UploadId,
+		arg.Index,
+		arg.Filename,
+	)
 	return err
 }
 
@@ -50,16 +55,22 @@ SELECT id, "uploadId", index
 	FROM public."VideoJobs"
 `
 
+type GetAllVideoJobsRow struct {
+	ID       string
+	UploadId string
+	Index    int32
+}
+
 // database/query.sql
-func (q *Queries) GetAllVideoJobs(ctx context.Context) ([]VideoJob, error) {
+func (q *Queries) GetAllVideoJobs(ctx context.Context) ([]GetAllVideoJobsRow, error) {
 	rows, err := q.db.QueryContext(ctx, getAllVideoJobs)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []VideoJob
+	var items []GetAllVideoJobsRow
 	for rows.Next() {
-		var i VideoJob
+		var i GetAllVideoJobsRow
 		if err := rows.Scan(&i.ID, &i.UploadId, &i.Index); err != nil {
 			return nil, err
 		}
@@ -94,9 +105,36 @@ ORDER BY index DESC
 LIMIT 1
 `
 
-func (q *Queries) GetLatestUploadedChunk(ctx context.Context, uploadid string) (VideoJob, error) {
+type GetLatestUploadedChunkRow struct {
+	ID       string
+	UploadId string
+	Index    int32
+}
+
+func (q *Queries) GetLatestUploadedChunk(ctx context.Context, uploadid string) (GetLatestUploadedChunkRow, error) {
 	row := q.db.QueryRowContext(ctx, getLatestUploadedChunk, uploadid)
-	var i VideoJob
+	var i GetLatestUploadedChunkRow
+	err := row.Scan(&i.ID, &i.UploadId, &i.Index)
+	return i, err
+}
+
+const getLatestUploadedChunkByFilename = `-- name: GetLatestUploadedChunkByFilename :one
+SELECT id, "uploadId", index 
+FROM public."VideoJobs" 
+WHERE "filename" = $1
+ORDER BY index DESC
+LIMIT 1
+`
+
+type GetLatestUploadedChunkByFilenameRow struct {
+	ID       string
+	UploadId string
+	Index    int32
+}
+
+func (q *Queries) GetLatestUploadedChunkByFilename(ctx context.Context, filename string) (GetLatestUploadedChunkByFilenameRow, error) {
+	row := q.db.QueryRowContext(ctx, getLatestUploadedChunkByFilename, filename)
+	var i GetLatestUploadedChunkByFilenameRow
 	err := row.Scan(&i.ID, &i.UploadId, &i.Index)
 	return i, err
 }

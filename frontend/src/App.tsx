@@ -23,6 +23,7 @@ function App() {
         const f = blobToFile(chunks[i], file.name)
 
         formData.append("file", f)
+        formData.append("filename", file.name)
         formData.append("uploadId", randomString)
         formData.append("chunkIndex", i.toString())
 

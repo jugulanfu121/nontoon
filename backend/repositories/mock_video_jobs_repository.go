@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 
 	"github.com/arifazola/nontoon/internal/db"
@@ -12,7 +11,7 @@ type MockVideoJobsRepository struct{
 	Err error
 }
 
-func (m *MockVideoJobsRepository) AddVideoJobs(context context.Context, id, uploadId string, index int) error {
+func (m *MockVideoJobsRepository) AddVideoJobs(context context.Context, id, uploadId, filename string, index int) error {
 	if m.Err != nil {
 		return errors.New("Failed To Store Jobs")
 	}
@@ -20,20 +19,31 @@ func (m *MockVideoJobsRepository) AddVideoJobs(context context.Context, id, uplo
 	return nil
 }
 
-func (m *MockVideoJobsRepository) GetLatestUploadedChunk(ctx context.Context, uploadId string) (db.VideoJob, error) {
-	var videoJob db.VideoJob
+func (m *MockVideoJobsRepository) GetLatestUploadedChunk(ctx context.Context, uploadId string) (db.GetLatestUploadedChunkRow, error) {
+	var videoJob db.GetLatestUploadedChunkRow
 	if m.Err != nil {
 		return videoJob, errors.New("Err")
 	}
 
 	videoJob.ID = "zzzz"
 	videoJob.UploadId = "abc"
-	index := sql.NullInt32 {
-		Int32: 1,
-		Valid: false,
-	}
+	index := int32(0)
 	videoJob.Index = index
 
 	return videoJob, nil
 
+}
+
+func (m *MockVideoJobsRepository) GetVideoJobByFilename(ctx context.Context, filename string) (db.GetLatestUploadedChunkByFilenameRow, error){
+	var videoJob db.GetLatestUploadedChunkByFilenameRow
+	if m.Err != nil {
+		return videoJob, errors.New("Err")
+	}
+
+	videoJob.ID = "zzzz"
+	videoJob.UploadId = "abc"
+	index := int32(0)
+	videoJob.Index = index
+
+	return videoJob, nil
 }

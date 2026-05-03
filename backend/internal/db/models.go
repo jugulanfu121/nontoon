@@ -4,10 +4,6 @@
 
 package db
 
-import (
-	"database/sql"
-)
-
 type HlsJob struct {
 	ID       string
 	UploadId string
@@ -17,5 +13,6 @@ type HlsJob struct {
 type VideoJob struct {
 	ID       string
 	UploadId string
-	Index    sql.NullInt32
+	Index    int32
+	Filename string
 }

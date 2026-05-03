@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"database/sql"
+	"errors"
 	"log"
 	"net/http"
 	"strconv"
@@ -61,6 +63,7 @@ func (videoController *VideoController) UploadVideo(c *gin.Context){
 func (c *VideoController) UploadChunk(ctx *gin.Context) {
     uploadID := ctx.PostForm("uploadId")
     chunkIndexStr := ctx.PostForm("chunkIndex")
+    filename := ctx.PostForm("filename")
 
     file, err := ctx.FormFile("file")
     if err != nil {
@@ -68,12 +71,26 @@ func (c *VideoController) UploadChunk(ctx *gin.Context) {
         return
     }
 
+    isFileDuplicate, err := c.VideoService.IsFileDuplicate(filename, ctx)
+    
+    if err != nil {
+        if !errors.Is(sql.ErrNoRows, err) {
+            ctx.JSON(500, gin.H{"error": err.Error()})
+            return
+        }
+    } else {
+        ctx.JSON(http.StatusOK, isFileDuplicate)
+        return
+    }
+
+    
+
     f, _ := file.Open()
     defer f.Close()
 
     index, _ := strconv.Atoi(chunkIndexStr)
 
-    err = c.VideoService.SaveChunk(uploadID, index, f, ctx)
+    err = c.VideoService.SaveChunk(uploadID, filename, index, f, ctx)
     if err != nil {
         ctx.JSON(500, gin.H{"error": err.Error()})
         return

@@ -2,7 +2,6 @@ package services_test
 
 import (
 	"bytes"
-	"database/sql"
 	"errors"
 	"fmt"
 	"os"
@@ -59,7 +58,7 @@ func TestSaveChunkSuccess(t *testing.T){
 	fileContent := []byte("hello world")
     reader := bytes.NewReader(fileContent)
 
-    err := service.SaveChunk("mockID", 0, reader, t.Context())
+    err := service.SaveChunk("mockID", "test_name", 0, reader, t.Context())
 	
 	assert.Nil(t, err, "Error must be nil")
 }
@@ -79,7 +78,7 @@ func TestSaveChunkError(t *testing.T){
 	fileContent := []byte("hello world")
     reader := bytes.NewReader(fileContent)
 
-    err := service.SaveChunk("mockID", 0, reader, t.Context())
+    err := service.SaveChunk("mockID", "test_name", 0, reader, t.Context())
 	
 	assert.NotNil(t, err, "Error must exist")
 }
@@ -98,7 +97,7 @@ func TestSaveChunkWriteDbFail(t *testing.T){
 	fileContent := []byte("hello world")
     reader := bytes.NewReader(fileContent)
 
-    err := service.SaveChunk("mockID", 0, reader, t.Context())
+    err := service.SaveChunk("mockID", "test_name", 0, reader, t.Context())
 	
 	assert.NotNil(t, err, "Error must be nil")
 }
@@ -202,11 +201,7 @@ func TestGetLatestUploadChunk_Success(t *testing.T){
 
 	videoJob.ID = "zzzz"
 	videoJob.UploadId = "abc"
-	index := sql.NullInt32 {
-		Int32: 1,
-		Valid: false,
-	}
-	videoJob.Index = index
+	videoJob.Index = int32(0)
 
 	assert.Equal(t, videoJob, res)
 }

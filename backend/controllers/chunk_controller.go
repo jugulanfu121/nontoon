@@ -20,5 +20,5 @@ func (ctrl *ChunkController) GetLatestUploadedChunk(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"index": latestUploadedChunk.Index.Int32})
+	c.JSON(http.StatusOK, gin.H{"index": latestUploadedChunk.Index})
 }

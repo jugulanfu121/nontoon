@@ -7,6 +7,7 @@ import (
 )
 
 type VideoJobs interface {
-	AddVideoJobs(context context.Context, id, uploadId string, index int) error
-	GetLatestUploadedChunk(ctx context.Context, uploadId string) (db.VideoJob, error)
+	AddVideoJobs(context context.Context, id, uploadId, filename string, index int) error
+	GetLatestUploadedChunk(ctx context.Context, uploadId string) (db.GetLatestUploadedChunkRow, error)
+	GetVideoJobByFilename(ctx context.Context, filename string) (db.GetLatestUploadedChunkByFilenameRow, error)
 }
